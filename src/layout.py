@@ -1,5 +1,4 @@
 import tkinter as tk
-from random import randint
 from tkinter import ttk
 
 from src.core.polymom import Polymom
@@ -7,8 +6,8 @@ from src.core.polymom import Polymom
 DELAY = 12
 
 
-def x(win, pm):
-	pm.draw()
+def x(win: tk.Tk, pm: Polymom):
+	pm.draw_poly()
 	win.after(DELAY, x, win, pm)
 
 

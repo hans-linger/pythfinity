@@ -27,3 +27,15 @@ class Polymom(object):
 	def draw(self):
 		self.canvas.delete('all')
 		self.canvas.create_oval(self.get_coordinates(), fill='black')
+
+	def draw_poly(self):
+		self.canvas.delete('all')
+		coords = self.get_coordinates()
+		points = [
+			coords[0], coords[1],
+			coords[2], coords[1],
+			coords[2], coords[3],
+			coords[0], coords[3],
+			coords[0], coords[1]
+		]
+		self.canvas.create_polygon(points, fill='black', smooth=True, outline='', splinesteps=self.counter * 12)
