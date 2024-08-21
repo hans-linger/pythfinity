@@ -1,8 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from src.core.constants import GRAPHICS_SIZE
-from src.qtcore.circle import Circle
-from src.qtcore.layout import Layout
 from src.qtcore.mirror import Mirror
 
 
@@ -11,5 +9,5 @@ class MainWindow(QMainWindow):
 		super(MainWindow, self).__init__()
 		self.setWindowTitle("Qt Test 1")
 		self.setGeometry(GRAPHICS_SIZE, GRAPHICS_SIZE, GRAPHICS_SIZE, GRAPHICS_SIZE)
-		m = Circle()
+		m = Mirror()
 		self.setCentralWidget(m)
