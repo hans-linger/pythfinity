@@ -1,7 +1,10 @@
-from PyQt5.QtGui import QColor
+from src.core.helpers import parabolic_interpolation
 
-from src.core.helpers import calc_colors
-
-cc = calc_colors(QColor(0, 0, 0), QColor(255, 255, 255), 3)
-ccc = [10, 30, 50]
-print(' '.join(map(lambda x: str(x.red()), cc)))
+parabolic_interpolation(10, 50, 0)
+a1 = 10
+a2 = 50
+z = a1
+i = 0
+while abs(a2 - z) > 10 and i < 10:
+	z = parabolic_interpolation(z, a2, (z - a1) / (a2 - a1))
+	i += 1
