@@ -12,8 +12,9 @@ class Mirror(QWidget):
 	def __init__(self):
 		super().__init__()
 		self.view = QGraphicsView()
+		self.view.setRenderHint(QPainter.Antialiasing)
 		self.scene = QGraphicsScene()
-		self.scene.setBackgroundBrush(QColor(0,0,0))
+
 
 		self.view.setScene(self.scene)
 		self.color_start = QColor()
@@ -47,6 +48,7 @@ class Mirror(QWidget):
 		self.infoLabel = QLabel(self)
 		layout.addWidget(self.infoLabel)
 
+		layout.addWidget(self.view)
 		self.setLayout(layout)
 		self.update_info()
 
@@ -93,6 +95,7 @@ class Mirror(QWidget):
 		print("DIED " + str(dead_polly.n))
 		if dead_polly in self.polygons:
 			self.polygons.pop(self.polygons.index(dead_polly))
+			self.update_info()
 
 	def update_info(self):
 		self.infoLabel.setText(f"Number of Polygons: {len(self.polygons)}")

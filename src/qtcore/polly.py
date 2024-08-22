@@ -13,7 +13,7 @@ class Polly(QGraphicsPolygonItem):
 		super().__init__(parent)
 		self.r = r
 		self.n = n
-		self.color = color
+		self._color = color
 		self.x = x
 		self.y = y
 		self.a = a
@@ -25,11 +25,19 @@ class Polly(QGraphicsPolygonItem):
 		self.setOpacity(1)
 		self.opacity_effect = QGraphicsOpacityEffect()
 		self.setGraphicsEffect(self.opacity_effect)
-		self.setBrush(QBrush(color))
 		self.draw()
 		self.animation = QPropertyAnimation(self.opacity_effect, b"opacity")
-		self.animation.setDuration(1000)
+		self.animation.setDuration(400)
 		self.cry = DeadEmit()
+
+	@property
+	def color(self):
+		return self._color
+
+	@color.setter
+	def color(self, color: QColor):
+		self._color = color
+		self.draw()
 
 	def calculate_vertices(self):
 		vertices = []
@@ -79,17 +87,15 @@ class Polly(QGraphicsPolygonItem):
 		self.draw()
 
 	def start_fade_in(self):
-		# print("sfi")
 		self.animation.setStartValue(0.0)
 		self.animation.setEndValue(1.0)
 		self.animation.start()
 
 	def start_fade_out(self):
-		# print("sfo")
 		self.animation.setStartValue(1.0)
 		self.animation.setEndValue(0.0)
 		self.animation.start()
 
 	def draw(self):
-		print(' '.join(list(str(v) for v in self.calculate_vertices())))
+		self.setBrush(QBrush(self.color))
 		self.setPolygon(self.calc_polygon())
