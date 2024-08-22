@@ -1,8 +1,8 @@
 import math
 
-from PyQt5.QtCore import QTimer, QPointF, QObject
+from PyQt5.QtCore import QTimer, QPointF
 from PyQt5.QtGui import QPainter, QPolygonF, QColor
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QGraphicsView, QGraphicsScene
 
 from src.core.helpers import calc_colors
 from src.qtcore.polly import Polly
@@ -11,6 +11,11 @@ from src.qtcore.polly import Polly
 class Mirror(QWidget):
 	def __init__(self):
 		super().__init__()
+		self.view = QGraphicsView()
+		self.scene = QGraphicsScene()
+		self.scene.setBackgroundBrush(QColor(0,0,0))
+
+		self.view.setScene(self.scene)
 		self.color_start = QColor()
 		self.color_start.setNamedColor("#ff00a0")
 		self.color_end = QColor()
@@ -20,14 +25,15 @@ class Mirror(QWidget):
 		self.colors = []
 		self.timer = QTimer(self)
 		self.timer.timeout.connect(self.update_animation)
-		self.timer.start(50)
+		self.timer.start(25)
 
-		self.initUI()
-		self.add_polygon()  # Создаем первый треугольник
-		self.add_polygon()  # Создаем первый треугольник
-		self.add_polygon()  # Создаем первый треугольник
+		self.init_ui()
+		self.add_polygon()
 
-	def initUI(self):
+	# self.add_polygon()
+	# self.add_polygon()
+
+	def init_ui(self):
 		layout = QVBoxLayout()
 
 		self.addButton = QPushButton("Add Polly", self)
@@ -44,6 +50,7 @@ class Mirror(QWidget):
 		self.setLayout(layout)
 		self.update_info()
 
+
 	def add_polygon(self):
 		num_polygons = len(self.polygons)
 		if num_polygons == 0:
@@ -56,10 +63,13 @@ class Mirror(QWidget):
 
 		new_polygon = Polly(r=r, n=n, color=self.color_start, x=0, y=0)
 		new_polygon.cry.imdead.connect(lambda: self.polygon_died(new_polygon))
-		new_polygon.start_fade_in()
 		self.polygons.insert(0, new_polygon)
+		self.scene.addItem(new_polygon)
+		self.polygons.append(new_polygon)
 		self.update_colors()
+		new_polygon.start_fade_in()
 		self.update_info()
+
 
 	def update_colors(self):
 		self.colors = calc_colors(self.color_start, self.color_end, len(self.polygons))
@@ -92,14 +102,14 @@ class Mirror(QWidget):
 			polygon.live()
 		self.update()
 
-	def paintEvent(self, event):
+	def paintEventq(self, event):
 		painter = QPainter(self)
 		painter.setRenderHint(QPainter.Antialiasing)
 		for polygon in self.polygons:
 			qpolygon = QPolygonF()
 			for vx, vy in polygon.vertices:
 				qpolygon.append(QPointF(self.width() / 2 + vx, self.height() / 2 + vy))
-			polygon.color.setAlphaF(polygon.alpha)
+			polygon.color.setAlphaF(polygon.opacity())
 			painter.setPen(polygon.color)
 			painter.setBrush(polygon.color)
 			painter.drawPolygon(qpolygon)

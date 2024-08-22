@@ -1,13 +1,14 @@
 import math
 
-from PyQt5.QtCore import QObject, QPropertyAnimation, pyqtProperty
-from PyQt5.QtGui import QColor
+from PyQt5.QtCore import QPropertyAnimation, QPointF
+from PyQt5.QtGui import QColor, QPolygonF, QBrush
+from PyQt5.QtWidgets import QGraphicsPolygonItem, QGraphicsOpacityEffect
 
 from src.core.constants import DYING_SPEED, NORMAL_SPEED, START_SPEED
 from src.core.helpers import ease_out_circ, DeadEmit
 
 
-class Polly(QObject):
+class Polly(QGraphicsPolygonItem):
 	def __init__(self, r, n, color: QColor, x=0, y=0, a=0, parent=None):
 		super().__init__(parent)
 		self.r = r
@@ -16,17 +17,18 @@ class Polly(QObject):
 		self.x = x
 		self.y = y
 		self.a = a
-		self._alpha = 0.0
 		self._is_appearing = True
 		self.is_dying = False
 		self._t = 0.0
 		self.vertices = self.calculate_vertices()
 		self.rotation_speed = START_SPEED
-		self.animation = QPropertyAnimation(self, b"alpha")
-		self.animation.setDuration(2000)
-		self.animation.setStartValue(0.0)
-		self.animation.setEndValue(1.0)
-		self.animation.setLoopCount(1)
+		self.setOpacity(1)
+		self.opacity_effect = QGraphicsOpacityEffect()
+		self.setGraphicsEffect(self.opacity_effect)
+		self.setBrush(QBrush(color))
+		self.draw()
+		self.animation = QPropertyAnimation(self.opacity_effect, b"opacity")
+		self.animation.setDuration(1000)
 		self.cry = DeadEmit()
 
 	def calculate_vertices(self):
@@ -37,6 +39,10 @@ class Polly(QObject):
 			vy = self.y + self.r * math.sin(angle)
 			vertices.append((vx, vy))
 		return vertices
+
+	def calc_polygon(self):
+		vv = self.calculate_vertices()
+		return QPolygonF(QPointF(v[0], v[1]) for v in vv)
 
 	def live(self):
 		# rotation speed
@@ -60,6 +66,7 @@ class Polly(QObject):
 		else:
 			self._is_appearing = False
 		self.rotate()
+		self.draw()
 
 	def die(self):
 		self._is_appearing = False
@@ -69,20 +76,20 @@ class Polly(QObject):
 	def rotate(self):
 		self.a += self.rotation_speed
 		self.vertices = self.calculate_vertices()
-
-	@pyqtProperty(float)
-	def alpha(self):
-		return self._alpha
-
-	@alpha.setter
-	def alpha(self, value):
-		self._alpha = value
+		self.draw()
 
 	def start_fade_in(self):
-		self.alpha = 0.0
+		# print("sfi")
+		self.animation.setStartValue(0.0)
+		self.animation.setEndValue(1.0)
 		self.animation.start()
 
 	def start_fade_out(self):
-		self.alpha = 1.0
-		self.animation.setDirection(QPropertyAnimation.Backward)
+		# print("sfo")
+		self.animation.setStartValue(1.0)
+		self.animation.setEndValue(0.0)
 		self.animation.start()
+
+	def draw(self):
+		print(' '.join(list(str(v) for v in self.calculate_vertices())))
+		self.setPolygon(self.calc_polygon())
