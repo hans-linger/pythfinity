@@ -4,13 +4,12 @@ from PyQt5.QtCore import QObject, QPropertyAnimation, pyqtProperty
 from PyQt5.QtGui import QColor
 
 from src.core.constants import DYING_SPEED, NORMAL_SPEED, START_SPEED
-from src.core.helpers import ease_out_circ
+from src.core.helpers import ease_out_circ, DeadEmit
 
 
 class Polly(QObject):
 	def __init__(self, r, n, color: QColor, x=0, y=0, a=0, parent=None):
 		super().__init__(parent)
-		self._dying_task = None
 		self.r = r
 		self.n = n
 		self.color = color
@@ -19,7 +18,7 @@ class Polly(QObject):
 		self.a = a
 		self._alpha = 0.0
 		self._is_appearing = True
-		self._is_dying = False
+		self.is_dying = False
 		self._t = 0.0
 		self.vertices = self.calculate_vertices()
 		self.rotation_speed = START_SPEED
@@ -28,6 +27,7 @@ class Polly(QObject):
 		self.animation.setStartValue(0.0)
 		self.animation.setEndValue(1.0)
 		self.animation.setLoopCount(1)
+		self.cry = DeadEmit()
 
 	def calculate_vertices(self):
 		vertices = []
@@ -40,18 +40,16 @@ class Polly(QObject):
 
 	def live(self):
 		# rotation speed
-		if self._is_dying:
+		if self.is_dying:
 			if self.rotation_speed < DYING_SPEED:
-				print("DYING: " + str(abs(self.rotation_speed - DYING_SPEED)))
 				self._t += 0.1
 				self.rotation_speed = ease_out_circ(
 					NORMAL_SPEED,
 					DYING_SPEED,
 					self._t,
 				)
-			elif self._dying_task:
-				self._dying_task.done()
-				self._dying_task = None
+			else:
+				self.cry.imdead.emit(":(")
 		elif self._is_appearing and self._t < 1.0:
 			self._t += 0.06
 			self.rotation_speed = ease_out_circ(
@@ -65,11 +63,8 @@ class Polly(QObject):
 
 	def die(self):
 		self._is_appearing = False
-		self._is_dying = True
+		self.is_dying = True
 		self._t = 0.0
-
-	# self._dying_task = asyncio.create_task()
-	# return self._dying_task
 
 	def rotate(self):
 		self.a += self.rotation_speed

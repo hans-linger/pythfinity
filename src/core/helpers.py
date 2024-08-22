@@ -1,5 +1,6 @@
 from math import cos, radians, pi, sin, sqrt
 
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QColor
 
 
@@ -70,3 +71,7 @@ def easeOutBounce(x: float):
 def ease_out_circ(a1, a2, t: float):
 	t -= 1
 	return (a2 - a1) * sqrt(1 - t * t)
+
+
+class DeadEmit(QObject):
+	imdead = pyqtSignal(str)

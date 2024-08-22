@@ -1,6 +1,6 @@
 import math
 
-from PyQt5.QtCore import QTimer, QPointF
+from PyQt5.QtCore import QTimer, QPointF, QObject
 from PyQt5.QtGui import QPainter, QPolygonF, QColor
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 
@@ -55,6 +55,7 @@ class Mirror(QWidget):
 			r = last_polygon.r / math.cos(math.pi / n)
 
 		new_polygon = Polly(r=r, n=n, color=self.color_start, x=0, y=0)
+		new_polygon.cry.imdead.connect(lambda: self.polygon_died(new_polygon))
 		new_polygon.start_fade_in()
 		self.polygons.insert(0, new_polygon)
 		self.update_colors()
@@ -66,12 +67,22 @@ class Mirror(QWidget):
 			self.polygons[i].color = self.colors[i]
 
 	def remove_polygon(self):
-		if self.polygons and len(self.polygons) > 1:
-			polygon = self.polygons.pop(0)
-			self.update_colors()
-			polygon.start_fade_out()
-			polygon.die()
-			self.update_info()
+		if self.polygons:
+			lively_pollies = [x for x in self.polygons if not x.is_dying]
+			if len(lively_pollies) > 1:
+				polygon = lively_pollies[0]
+				if polygon:
+					print("Mark to die: " + str(polygon.n))
+					self.update_colors()
+					polygon.start_fade_out()
+					polygon.die()
+					self.update_info()
+
+
+	def polygon_died(self, dead_polly):
+		print("DIED " + str(dead_polly.n))
+		if dead_polly in self.polygons:
+			self.polygons.pop(self.polygons.index(dead_polly))
 
 	def update_info(self):
 		self.infoLabel.setText(f"Number of Polygons: {len(self.polygons)}")
@@ -92,4 +103,8 @@ class Mirror(QWidget):
 			painter.setPen(polygon.color)
 			painter.setBrush(polygon.color)
 			painter.drawPolygon(qpolygon)
+			circle_color = polygon.color
+			circle_color.setAlphaF(0.2)
+			painter.setBrush(circle_color)
+			painter.drawEllipse(QPointF(self.width() / 2, self.width() / 2), polygon.r, polygon.r)
 		painter.end()
