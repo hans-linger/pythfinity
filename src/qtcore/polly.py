@@ -1,7 +1,7 @@
 import math
 
-from PyQt5.QtCore import QPropertyAnimation, QPointF
-from PyQt5.QtGui import QColor, QPolygonF, QBrush
+from PyQt5.QtCore import QPropertyAnimation, QPointF, Qt
+from PyQt5.QtGui import QColor, QPolygonF, QBrush, QPen
 from PyQt5.QtWidgets import QGraphicsPolygonItem, QGraphicsOpacityEffect
 
 from src.core.constants import DYING_SPEED, NORMAL_SPEED, START_SPEED
@@ -17,18 +17,21 @@ class Polly(QGraphicsPolygonItem):
 		self.x = x
 		self.y = y
 		self.a = a
+		print(f"Drawing {n} at: ({x}, {y})")
 		self._is_appearing = True
 		self.is_dying = False
 		self._t = 0.0
-		self.vertices = self.calculate_vertices()
 		self.rotation_speed = START_SPEED
-		self.setOpacity(1)
 		self.opacity_effect = QGraphicsOpacityEffect()
 		self.setGraphicsEffect(self.opacity_effect)
-		self.draw()
 		self.animation = QPropertyAnimation(self.opacity_effect, b"opacity")
 		self.animation.setDuration(400)
 		self.cry = DeadEmit()
+		print(f"Creating ({n}): {color.name()}, {self.opacity()}")
+		self.setBrush(self._color)
+		self.setPen(QPen(Qt.NoPen))
+		self.draw()
+		self.start_fade_in()
 
 	@property
 	def color(self):
@@ -37,6 +40,8 @@ class Polly(QGraphicsPolygonItem):
 	@color.setter
 	def color(self, color: QColor):
 		self._color = color
+		if self.n == 5:
+			print(f"Brush: {self._color.name()}")
 		self.draw()
 
 	def calculate_vertices(self):
@@ -83,10 +88,10 @@ class Polly(QGraphicsPolygonItem):
 
 	def rotate(self):
 		self.a += self.rotation_speed
-		self.vertices = self.calculate_vertices()
 		self.draw()
 
 	def start_fade_in(self):
+		print(f"SFI ({self.n})")
 		self.animation.setStartValue(0.0)
 		self.animation.setEndValue(1.0)
 		self.animation.start()
