@@ -1,34 +1,42 @@
 import math
+from math import radians
 
 from PyQt5.QtCore import QPropertyAnimation, QPointF, Qt
 from PyQt5.QtGui import QColor, QPolygonF, QBrush, QPen
-from PyQt5.QtWidgets import QGraphicsPolygonItem, QGraphicsOpacityEffect
+from PyQt5.QtWidgets import QGraphicsPolygonItem, QGraphicsOpacityEffect, QGraphicsRotation
 
 from src.core.constants import DYING_SPEED, NORMAL_SPEED, START_SPEED
 from src.core.helpers import ease_out_circ, DeadEmit
 
 
 class Polly(QGraphicsPolygonItem):
-	def __init__(self, r, n, color: QColor, x=0, y=0, a=0, parent=None):
+	def __init__(self, r, n, color: QColor, x=0, y=0, start_angle=0, parent=None):
 		super().__init__(parent)
 		self.r = r
 		self.n = n
 		self._color = color
 		self.x = x
 		self.y = y
-		self.a = a
+		self._a = start_angle
 		self._is_appearing = True
 		self.is_dying = False
 		self._t = 0.0
 		self.rotation_speed = START_SPEED
 		self.opacity_effect = QGraphicsOpacityEffect()
+		self.rotation_effect = QGraphicsRotation()
 		self.setGraphicsEffect(self.opacity_effect)
-		self.animation = QPropertyAnimation(self.opacity_effect, b"opacity")
-		self.animation.setDuration(400)
+		self.opacity_animation = QPropertyAnimation(self.opacity_effect, b"opacity")
+		self.opacity_animation.setDuration(500)
+		self.rotation_animation = QPropertyAnimation(self.rotation_effect, b"a")
+		self.rotation_animation.setDuration(500)
+		self.rotation_animation.valueChanged.connect(self.angle_changed)
 		self.cry = DeadEmit()
 		self.setBrush(self._color)
 		self.setPen(QPen(Qt.NoPen))
 		self.draw()
+		self.rotation_animation.setStartValue(start_angle)
+		self.rotation_animation.setEndValue(start_angle + radians(45))
+		self.rotation_animation.start()
 		self.start_fade_in()
 
 	@property
@@ -40,10 +48,23 @@ class Polly(QGraphicsPolygonItem):
 		self._color = color
 		self.draw()
 
+	def angle_changed(self, value):
+		self.a = value
+		self.draw()
+
+	@property
+	def a(self):
+		return self._a
+
+	@a.setter
+	def a(self, a):
+		self._a = a
+		self.draw()
+
 	def calculate_vertices(self):
 		vertices = []
 		for i in range(self.n):
-			angle = 2 * math.pi * i / self.n + math.radians(self.a)
+			angle = 2 * math.pi * i / self.n + self.a
 			vx = self.x + self.r * math.cos(angle)
 			vy = self.y + self.r * math.sin(angle)
 			vertices.append((vx, vy))
@@ -74,7 +95,7 @@ class Polly(QGraphicsPolygonItem):
 			)
 		else:
 			self._is_appearing = False
-		self.rotate()
+		# self.rotate()
 		self.draw()
 
 	def die(self):
@@ -82,20 +103,21 @@ class Polly(QGraphicsPolygonItem):
 		self.is_dying = True
 		self._t = 0.0
 
-	def rotate(self):
-		self.a += self.rotation_speed
-		self.draw()
+	# def rotate(self):
+
+	# print("dummy")
+	# self.a += self.rotation_speed
+	# self.draw()
 
 	def start_fade_in(self):
-		print(f"SFI ({self.n})")
-		self.animation.setStartValue(0.0)
-		self.animation.setEndValue(1.0)
-		self.animation.start()
+		self.opacity_animation.setStartValue(0.0)
+		self.opacity_animation.setEndValue(1.0)
+		self.opacity_animation.start()
 
 	def start_fade_out(self):
-		self.animation.setStartValue(1.0)
-		self.animation.setEndValue(0.0)
-		self.animation.start()
+		self.opacity_animation.setStartValue(1.0)
+		self.opacity_animation.setEndValue(0.0)
+		self.opacity_animation.start()
 
 	def draw(self):
 		self.setBrush(QBrush(self.color))

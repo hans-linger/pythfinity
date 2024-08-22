@@ -1,4 +1,5 @@
 import math
+from math import radians
 
 from PyQt5.QtCore import QTimer, QPointF
 from PyQt5.QtGui import QPainter, QColor
@@ -69,9 +70,9 @@ class Mirror(QWidget):
 			last_polygon = self.polygons[0]
 			n = last_polygon.n + 2
 			r = last_polygon.r / math.cos(math.pi / n)
-			a = last_polygon.a + math.pi / 2
+			a = last_polygon.a + math.pi / 2 + radians(45)
 
-		new_polygon = Polly(r=r, n=n, color=self.color_start, a=a, x=GRAPHICS_SIZE / 2, y=GRAPHICS_SIZE / 2)
+		new_polygon = Polly(r=r, n=n, color=self.color_start, start_angle=a, x=GRAPHICS_SIZE / 2, y=GRAPHICS_SIZE / 2)
 		new_polygon.cry.imdead.connect(lambda: self.polly_died(new_polygon))
 		self.polygons.insert(0, new_polygon)
 		self.update_colors()
