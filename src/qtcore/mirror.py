@@ -2,8 +2,7 @@ import math
 
 from PyQt5.QtCore import QTimer, QPointF
 from PyQt5.QtGui import QPainter, QColor
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QGraphicsView, QGraphicsScene, QHBoxLayout, \
-	QStyle
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QGraphicsView, QGraphicsScene, QHBoxLayout
 
 from src.core.constants import GRAPHICS_SIZE
 from src.core.helpers import calc_colors
@@ -38,15 +37,15 @@ class Mirror(QWidget):
 
 	def init_ui(self):
 		layout = QVBoxLayout()
-		layout.setContentsMargins(0,0,0,0)
+		layout.setContentsMargins(0, 0, 0, 0)
 		buttons_layout = QHBoxLayout()
-		buttons_layout.setContentsMargins(10,10,10,10)
+		buttons_layout.setContentsMargins(10, 10, 10, 10)
 
-		self.addButton = QPushButton("Add Polly", self)
+		self.addButton = QPushButton("Create Polly", self)
 		self.addButton.clicked.connect(self.add_polygon)
 		buttons_layout.addWidget(self.addButton)
 
-		self.removeButton = QPushButton("Remove Polly", self)
+		self.removeButton = QPushButton("Kill Polly", self)
 		self.removeButton.clicked.connect(self.kill_polly)
 		buttons_layout.addWidget(self.removeButton)
 
@@ -99,13 +98,12 @@ class Mirror(QWidget):
 					self.update_info()
 
 	def polly_died(self, dead_polly):
-		print("DIED " + str(dead_polly.n))
 		if dead_polly in self.polygons:
 			self.polygons.pop(self.polygons.index(dead_polly))
 			self.update_info()
 
 	def update_info(self):
-		self.infoLabel.setText(f"Number of Polygons: {len(self.polygons)}")
+		self.infoLabel.setText(f"Pollies: {len(self.polygons)}")
 
 	def update_animation(self):
 		for polygon in self.polygons:

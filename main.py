@@ -7,7 +7,8 @@ from src.qtcore.main_window import MainWindow
 
 app = QApplication(sys.argv)
 window = MainWindow()
-window.setFixedSize(GRAPHICS_SIZE + 2, GRAPHICS_SIZE + 200)
+window.setFixedSize(GRAPHICS_SIZE, GRAPHICS_SIZE + 100)
 window.setContentsMargins(0, 0, 0, 0)
+window.setStyleSheet("QGraphicsView { border: 0; }")
 window.show()
 sys.exit(app.exec_())

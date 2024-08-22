@@ -17,7 +17,6 @@ class Polly(QGraphicsPolygonItem):
 		self.x = x
 		self.y = y
 		self.a = a
-		print(f"Drawing {n} at: ({x}, {y})")
 		self._is_appearing = True
 		self.is_dying = False
 		self._t = 0.0
@@ -27,7 +26,6 @@ class Polly(QGraphicsPolygonItem):
 		self.animation = QPropertyAnimation(self.opacity_effect, b"opacity")
 		self.animation.setDuration(400)
 		self.cry = DeadEmit()
-		print(f"Creating ({n}): {color.name()}, {self.opacity()}")
 		self.setBrush(self._color)
 		self.setPen(QPen(Qt.NoPen))
 		self.draw()
@@ -40,8 +38,6 @@ class Polly(QGraphicsPolygonItem):
 	@color.setter
 	def color(self, color: QColor):
 		self._color = color
-		if self.n == 5:
-			print(f"Brush: {self._color.name()}")
 		self.draw()
 
 	def calculate_vertices(self):
